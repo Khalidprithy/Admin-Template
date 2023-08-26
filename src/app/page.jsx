@@ -17,7 +17,7 @@ export default function Home() {
                      </p>
                      <button
                         onClick={() => window.my_modal_3.showModal()}
-                        className='bg-white text-blue-500 px-6 py-2 rounded-lg'
+                        className='bg-white text-blue-500 px-6 py-2 rounded'
                      >
                         Learn More
                      </button>

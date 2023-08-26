@@ -49,7 +49,7 @@ export default function Header({ toggleSidebar, isSidebarOpen }) {
                <RiUserFill className='text-2xl' />
             </button>
             {isDropdownOpen && (
-               <div className='absolute top-14 right-0 bg-violet-500 border rounded shadow z-20 p-2'>
+               <div className='absolute top-14 right-0 bg-violet-400 rounded shadow-md z-20 p-2'>
                   <ul className='flex flex-col items-center gap-2'>
                      <li className='btn btn-info btn-sm w-full rounded'>
                         Profile
