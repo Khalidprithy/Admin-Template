@@ -54,7 +54,7 @@ export default function MainLayout() {
                Main Content
             </main>
             <footer className='bg-violet-400 p-2 text-center'>
-               This is footer
+               This is footer....
             </footer>
          </div>
       </div>
