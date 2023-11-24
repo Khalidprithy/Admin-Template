@@ -1,7 +1,7 @@
 import { useEffect, useRef, useState } from 'react';
 import { RiMenuFoldFill, RiMenuUnfoldFill, RiUserFill } from 'react-icons/ri';
 
-export default function Header({ toggleSidebar, isSidebarOpen }) {
+export default function TopBar({ toggleSidebar, isSidebarOpen }) {
    const [isDropdownOpen, setIsDropdownOpen] = useState(false);
    const dropdownRef = useRef(null);
 
@@ -27,10 +27,10 @@ export default function Header({ toggleSidebar, isSidebarOpen }) {
    }, []);
 
    return (
-      <header className='h-16 bg-violet-400 fixed top-0 left-0 right-0 flex items-center justify-between p-2 z-10'>
+      <header className='h-16 bg-white shadow fixed top-0 left-0 right-0 flex items-center justify-between p-2 z-10'>
          <div className='flex items-center gap-2'>
             <button
-               className='ml-2 bg-gray-100 shadow text-white p-2 rounded'
+               className='ml-2 bg-gray-100 text-white p-2 rounded-full border border-gray-300'
                onClick={toggleSidebar}
             >
                {isSidebarOpen ? (
@@ -43,13 +43,13 @@ export default function Header({ toggleSidebar, isSidebarOpen }) {
          </div>
          <div className='relative' ref={dropdownRef}>
             <button
-               className='bg-gray-100 shadow text-gray-800 p-2 rounded'
+               className='bg-white shadow text-gray-800 p-2 rounded-full border border-gray-300'
                onClick={toggleDropdown}
             >
                <RiUserFill className='text-2xl' />
             </button>
             {isDropdownOpen && (
-               <div className='absolute top-14 right-0 bg-violet-400 rounded shadow-md z-20 p-2'>
+               <div className='absolute top-14 right-0 bg-gray-100 rounded shadow-md z-20 p-2'>
                   <ul className='flex flex-col items-center gap-2'>
                      <li className='btn btn-info btn-sm w-full rounded'>
                         Profile
