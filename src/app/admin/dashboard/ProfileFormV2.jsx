@@ -4,7 +4,7 @@ import { yupResolver } from '@hookform/resolvers/yup';
 import { useFieldArray, useForm } from 'react-hook-form';
 import * as yup from 'yup';
 
-const ProfileFormV2 = () => {
+const ProfileFormV2 = ({ setProfileData }) => {
    const validationSchema = yup.object().shape({
       name: yup.string().required('Name is required'),
       phoneNumber: yup.string().required('Phone Number is required'),
@@ -36,7 +36,7 @@ const ProfileFormV2 = () => {
          name: '',
          phoneNumber: '',
          email: '',
-         age: 0,
+         age: null,
          addresses: [{ street: '', city: '', postalCode: '' }]
       }
    });
@@ -48,10 +48,12 @@ const ProfileFormV2 = () => {
 
    const onSubmit = data => {
       console.log(data);
+      setProfileData(data);
    };
 
    return (
-      <div className='card p-10 text-black'>
+      <div className='card p-5 text-black'>
+         <p>This form is made with react-hook-form with Yup validation</p>
          <h4 className='text-xl font-medium p-2'>User information</h4>
          <form
             onSubmit={handleSubmit(onSubmit)}

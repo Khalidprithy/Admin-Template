@@ -2,7 +2,7 @@
 
 import { useFieldArray, useForm } from 'react-hook-form';
 
-export default function ProfileFormV1() {
+export default function ProfileFormV1({ setProfileData }) {
    const {
       register,
       handleSubmit,
@@ -13,7 +13,7 @@ export default function ProfileFormV1() {
          name: '',
          phoneNumber: '',
          email: '',
-         age: 0,
+         age: null,
          addresses: [{ street: '', city: '', postalCode: '' }]
       }
    });
@@ -24,10 +24,12 @@ export default function ProfileFormV1() {
 
    const onSubmit = data => {
       console.log(data);
+      setProfileData(data);
    };
 
    return (
-      <div className='card p-10 text-black'>
+      <div className='card p-5 text-black'>
+         <p>This form is made with react-hook-form with default validation</p>
          <h4 className='text-xl font-medium p-2'>User information</h4>
          <form
             onSubmit={handleSubmit(onSubmit)}
@@ -85,7 +87,11 @@ export default function ProfileFormV1() {
                   <input
                      type='number'
                      id='age'
-                     {...register('age', { required: true })}
+                     {...register('age', {
+                        required: true,
+                        pattern: /^(0|[1-9]\d*)$/,
+                        message: 'Age must be a positive number'
+                     })}
                      className='input input-bordered w-full bg-white'
                   />
                   {errors.age && (

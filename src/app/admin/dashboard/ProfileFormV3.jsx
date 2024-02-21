@@ -1,59 +1,59 @@
 'use client';
 
+import { zodResolver } from '@hookform/resolvers/zod';
 import { useFieldArray, useForm } from 'react-hook-form';
 import { z } from 'zod';
 
-const ProfileFormV3 = () => {
+const ProfileFormV3 = ({ setProfileData }) => {
    // Define Zod schema for validation
    const schema = z.object({
       name: z
          .string()
-         .min(2, { message: 'Name should be at least 2 characters long' })
-         .max(50, { message: 'Name should not exceed 50 characters' })
-         .optional(),
+         .min(2, 'Name should be at least 2 characters long')
+         .max(50, 'Name should not exceed 50 characters')
+         .refine(value => !!value.trim(), { message: 'Name is required' }),
       phoneNumber: z
          .string()
-         .min(6, {
-            message: 'Phone number should be at least 6 characters long'
-         })
-         .max(20, { message: 'Phone number should not exceed 20 characters' })
-         .optional(),
-      email: z.string().email({ message: 'Invalid email format' }).optional(),
+         .min(6, 'Phone number should be at least 6 characters long')
+         .max(20, 'Phone number should not exceed 20 characters')
+         .refine(value => !!value.trim(), {
+            message: 'Phone number is required'
+         }),
+      email: z
+         .string()
+         .email('Invalid email format')
+         .refine(value => !!value.trim(), { message: 'Email is required' }),
       age: z
-         .number()
-         .int()
-         .positive({ message: 'Age should be a positive integer' })
-         .optional(),
-      addresses: z
-         .array(
-            z.object({
-               street: z
-                  .string()
-                  .min(2, {
-                     message: 'Street name should be at least 2 characters long'
-                  })
-                  .max(100, {
-                     message: 'Street name should not exceed 100 characters'
-                  }),
-               city: z
-                  .string()
-                  .min(2, {
-                     message: 'City name should be at least 2 characters long'
-                  })
-                  .max(50, {
-                     message: 'City name should not exceed 50 characters'
-                  }),
-               postalCode: z
-                  .string()
-                  .min(2, {
-                     message: 'Postal code should be at least 2 characters long'
-                  })
-                  .max(20, {
-                     message: 'Postal code should not exceed 20 characters'
-                  })
-            })
-         )
-         .optional()
+         .string()
+         .min(1, 'Age is required')
+         .refine(value => /^\d+$/.test(value), {
+            message: 'Age must be a positive number'
+         }),
+      addresses: z.array(
+         z.object({
+            street: z
+               .string()
+               .min(2, 'Street name should be at least 2 characters long')
+               .max(100, 'Street name should not exceed 100 characters')
+               .refine(value => !!value.trim(), {
+                  message: 'Street address is required'
+               }),
+            city: z
+               .string()
+               .min(2, 'City name should be at least 2 characters long')
+               .max(50, 'City name should not exceed 50 characters')
+               .refine(value => !!value.trim(), {
+                  message: 'City is required'
+               }),
+            postalCode: z
+               .string()
+               .min(2, 'Postal code should be at least 2 characters long')
+               .max(20, 'Postal code should not exceed 20 characters')
+               .refine(value => !!value.trim(), {
+                  message: 'Postal code is required'
+               })
+         })
+      )
    });
 
    // useForm hook with ZodResolver
@@ -63,20 +63,12 @@ const ProfileFormV3 = () => {
       formState: { errors },
       control
    } = useForm({
-      resolver: async data => {
-         try {
-            const validatedData = await schema.parse(data);
-            return { values: validatedData, errors: {} };
-         } catch (error) {
-            return { values: {}, errors: error.errors };
-         }
-      },
-
+      resolver: zodResolver(schema),
       defaultValues: {
          name: '',
          phoneNumber: '',
          email: '',
-         age: '',
+         age: null,
          addresses: [{ street: '', city: '', postalCode: '' }]
       }
    });
@@ -86,12 +78,15 @@ const ProfileFormV3 = () => {
       name: 'addresses'
    });
 
+   // Form submission handler
    const onSubmit = data => {
-      console.log(data); // Ensure data is logged properly
+      console.log(data);
+      setProfileData(data);
    };
 
    return (
-      <div className='card p-10 text-black'>
+      <div className='card p-5 text-black'>
+         <p>This form is made with react-hook-form with Zod validation</p>
          <h4 className='text-xl font-medium p-2'>User information</h4>
          <form
             onSubmit={handleSubmit(onSubmit)}
@@ -112,7 +107,7 @@ const ProfileFormV3 = () => {
                   />
                   {errors?.name && (
                      <span className='text-red-500'>
-                        {errors?.name.message}
+                        {errors?.name?.message}
                      </span>
                   )}
                </div>
@@ -129,7 +124,7 @@ const ProfileFormV3 = () => {
                   />
                   {errors?.phoneNumber && (
                      <span className='text-red-500'>
-                        {errors?.phoneNumber.message}
+                        {errors?.phoneNumber?.message}
                      </span>
                   )}
                </div>
@@ -146,7 +141,7 @@ const ProfileFormV3 = () => {
                   />
                   {errors?.email && (
                      <span className='text-red-500'>
-                        {errors?.email.message}
+                        {errors?.email?.message}
                      </span>
                   )}
                </div>
@@ -162,7 +157,9 @@ const ProfileFormV3 = () => {
                      className='input input-bordered w-full bg-white'
                   />
                   {errors?.age && (
-                     <span className='text-red-500'>{errors?.age.message}</span>
+                     <span className='text-red-500'>
+                        {errors?.age?.message}
+                     </span>
                   )}
                </div>
             </div>
@@ -200,10 +197,9 @@ const ProfileFormV3 = () => {
                               className='input input-bordered w-full bg-white'
                            />
                            {errors?.addresses &&
-                              errors?.addresses[index] &&
-                              errors?.addresses[index].street && (
+                              errors?.addresses[index]?.street && (
                                  <span className='text-red-500'>
-                                    {errors?.addresses[index].street.message}
+                                    {errors?.addresses[index]?.street?.message}
                                  </span>
                               )}
                         </div>
@@ -221,10 +217,9 @@ const ProfileFormV3 = () => {
                               className='input input-bordered w-full bg-white'
                            />
                            {errors?.addresses &&
-                              errors?.addresses[index] &&
-                              errors?.addresses[index].city && (
+                              errors?.addresses[index]?.city && (
                                  <span className='text-red-500'>
-                                    {errors?.addresses[index].city.message}
+                                    {errors?.addresses[index]?.city?.message}
                                  </span>
                               )}
                         </div>
@@ -242,12 +237,11 @@ const ProfileFormV3 = () => {
                               className='input input-bordered w-full bg-white'
                            />
                            {errors?.addresses &&
-                              errors?.addresses[index] &&
-                              errors?.addresses[index].postalCode && (
+                              errors?.addresses[index]?.postalCode && (
                                  <span className='text-red-500'>
                                     {
-                                       errors?.addresses[index].postalCode
-                                          .message
+                                       errors?.addresses[index]?.postalCode
+                                          ?.message
                                     }
                                  </span>
                               )}
