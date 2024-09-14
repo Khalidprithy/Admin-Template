@@ -2,7 +2,7 @@
 
 import { useFieldArray, useForm } from 'react-hook-form';
 
-export default function ProfileFormV1({ setProfileData }) {
+export default function ProfileFormV2({ setProfileData }) {
    const {
       register,
       handleSubmit,
@@ -14,10 +14,11 @@ export default function ProfileFormV1({ setProfileData }) {
          phoneNumber: '',
          email: '',
          age: null,
-         addresses: [{ street: '', city: '', postalCode: '' }]
+         addresses: [{ street: '', city: '', postalCode: '', phoneNumbers: [''] }]
       }
    });
-   const { fields, append, remove } = useFieldArray({
+
+   const { fields: addressFields, append: appendAddress, remove: removeAddress } = useFieldArray({
       control,
       name: 'addresses'
    });
@@ -101,22 +102,22 @@ export default function ProfileFormV1({ setProfileData }) {
             </div>
 
             {/* Address fields */}
-            {fields.map((address, index) => (
+            {addressFields.map((address, addressIndex) => (
                <div
                   key={address.id}
                   className='space-y-2 border border-gray-400 rounded-md p-2 mt-3'
                >
                   <div className='flex items-center justify-between'>
                      <h4 className='text-lg font-semibold text-green-500'>
-                        Address No {index + 1}
+                        Address No {addressIndex + 1}
                      </h4>
-                     {index !== 0 && (
+                     {addressIndex !== 0 && (
                         <button
                            type='button'
-                           onClick={() => remove(index)}
+                           onClick={() => removeAddress(addressIndex)}
                            className='btn btn-outline btn-error rounded-md btn-sm'
                         >
-                           Remove
+                           Remove Address
                         </button>
                      )}
                   </div>
@@ -125,21 +126,21 @@ export default function ProfileFormV1({ setProfileData }) {
                      <div className='form-control'>
                         <label
                            className='label text-gray-700'
-                           htmlFor={`addresses[${index}].street`}
+                           htmlFor={`addresses[${addressIndex}].street`}
                         >
                            Street Address
                         </label>
                         <input
                            type='text'
-                           id={`addresses[${index}].street`}
-                           {...register(`addresses[${index}].street`, {
+                           id={`addresses[${addressIndex}].street`}
+                           {...register(`addresses[${addressIndex}].street`, {
                               required: true
                            })}
                            className='input input-bordered w-full bg-white'
                         />
                         {errors.addresses &&
-                           errors.addresses[index] &&
-                           errors.addresses[index].street && (
+                           errors.addresses[addressIndex] &&
+                           errors.addresses[addressIndex].street && (
                               <span className='text-red-500'>
                                  Street Address is required
                               </span>
@@ -149,21 +150,21 @@ export default function ProfileFormV1({ setProfileData }) {
                      <div className='form-control'>
                         <label
                            className='label text-gray-700'
-                           htmlFor={`addresses[${index}].city`}
+                           htmlFor={`addresses[${addressIndex}].city`}
                         >
                            City
                         </label>
                         <input
                            type='text'
-                           id={`addresses[${index}].city`}
-                           {...register(`addresses[${index}].city`, {
+                           id={`addresses[${addressIndex}].city`}
+                           {...register(`addresses[${addressIndex}].city`, {
                               required: true
                            })}
                            className='input input-bordered w-full bg-white'
                         />
                         {errors.addresses &&
-                           errors.addresses[index] &&
-                           errors.addresses[index].city && (
+                           errors.addresses[addressIndex] &&
+                           errors.addresses[addressIndex].city && (
                               <span className='text-red-500'>
                                  City is required
                               </span>
@@ -173,37 +174,52 @@ export default function ProfileFormV1({ setProfileData }) {
                      <div className='form-control'>
                         <label
                            className='label text-gray-700'
-                           htmlFor={`addresses[${index}].postalCode`}
+                           htmlFor={`addresses[${addressIndex}].postalCode`}
                         >
                            Postal Code
                         </label>
                         <input
                            type='text'
-                           id={`addresses[${index}].postalCode`}
-                           {...register(`addresses[${index}].postalCode`, {
+                           id={`addresses[${addressIndex}].postalCode`}
+                           {...register(`addresses[${addressIndex}].postalCode`, {
                               required: true
                            })}
                            className='input input-bordered w-full bg-white'
                         />
                         {errors.addresses &&
-                           errors.addresses[index] &&
-                           errors.addresses[index].postalCode && (
+                           errors.addresses[addressIndex] &&
+                           errors.addresses[addressIndex].postalCode && (
                               <span className='text-red-500'>
                                  Postal Code is required
                               </span>
                            )}
                      </div>
                   </div>
+
+                  {/* Phone Numbers Field Array */}
+                  <div className='mt-4'>
+                     <h5 className='text-md font-semibold text-blue-500'>
+                        Phone Numbers
+                     </h5>
+                     <PhoneNumbersFieldArray
+                        control={control}
+                        addressIndex={addressIndex}
+                        register={register}
+                        errors={errors}
+                     />
+                  </div>
                </div>
             ))}
+
             {/* Button to add more addresses */}
             <button
                type='button'
-               onClick={() => append({ street: '', city: '', postalCode: '' })}
+               onClick={() => appendAddress({ street: '', city: '', postalCode: '', phoneNumbers: [''] })}
                className='btn btn-outline btn-accent rounded-md btn-sm'
             >
                Add Address
             </button>
+
             <div className='flex items-center justify-end'>
                <button type='submit' className='btn btn-sm rounded btn-primary'>
                   Submit
@@ -211,5 +227,54 @@ export default function ProfileFormV1({ setProfileData }) {
             </div>
          </form>
       </div>
+   );
+}
+
+function PhoneNumbersFieldArray({ control, addressIndex, register, errors }) {
+   const { fields: phoneFields, append: appendPhone, remove: removePhone } = useFieldArray({
+      control,
+      name: `addresses[${addressIndex}].phoneNumbers`
+   });
+
+   return (
+      <>
+         {phoneFields.map((phone, phoneIndex) => (
+            <div key={phone.id} className='flex items-center gap-3 mb-2'>
+               <input
+                  type='tel'
+                  {...register(`addresses[${addressIndex}].phoneNumbers[${phoneIndex}]`, {
+                     required: true
+                  })}
+                  className='input input-bordered w-full bg-white'
+                  placeholder={`Phone Number ${phoneIndex + 1}`}
+               />
+               {phoneIndex !== 0 && (
+                  <button
+                     type='button'
+                     onClick={() => removePhone(phoneIndex)}
+                     className='btn btn-outline btn-error rounded-md btn-sm'
+                  >
+                     Remove
+                  </button>
+               )}
+               {errors.addresses &&
+                  errors.addresses[addressIndex] &&
+                  errors.addresses[addressIndex].phoneNumbers &&
+                  errors.addresses[addressIndex].phoneNumbers[phoneIndex] && (
+                     <span className='text-red-500'>
+                        Phone number is required
+                     </span>
+                  )}
+            </div>
+         ))}
+
+         <button
+            type='button'
+            onClick={() => appendPhone('')}
+            className='btn btn-outline btn-info rounded-md btn-sm'
+         >
+            Add Phone Number
+         </button>
+      </>
    );
 }
